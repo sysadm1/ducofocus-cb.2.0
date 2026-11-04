@@ -12,7 +12,7 @@ permissions: {}
 
 jobs:
   ruff:
-    name: "Ruff"
+    name: "Ruff and API tests"
     runs-on: "ubuntu-latest"
     steps:
       - name: Checkout the repository
@@ -32,3 +32,6 @@ jobs:
 
       - name: Format
         run: python3 -m ruff format . --check
+
+      - name: API adapter tests
+        run: python3 -m unittest discover -s tests -v

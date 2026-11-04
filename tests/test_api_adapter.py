@@ -21,6 +21,8 @@ class FakeDucoPy:
     def __init__(self) -> None:
         self.responses: dict[tuple[str, str], object] = {}
         self.calls: list[tuple[str, str, dict[str, object]]] = []
+        self.closed = False
+        self.closed = False
 
     def raw_get(self, endpoint: str, **kwargs: object) -> object:
         self.calls.append(("GET", endpoint, kwargs))
@@ -36,6 +38,8 @@ class FakeDucoPy:
 
     def close(self) -> None:
         """Mirror the session cleanup method used by the adapter."""
+        self.closed = True
+        self.closed = True
 
 
 class DucoConnectivityBoardApiTests(unittest.IsolatedAsyncioTestCase):
@@ -131,6 +135,18 @@ class DucoConnectivityBoardApiTests(unittest.IsolatedAsyncioTestCase):
                 )
             ],
         )
+
+    async def test_closes_the_ducopy_session(self):
+        await self.api.async_close()
+
+        self.assertTrue(self.client.closed)
+        self.assertIsNone(self.api._client)
+
+    async def test_closes_the_ducopy_session(self):
+        await self.api.async_close()
+
+        self.assertTrue(self.client.closed)
+        self.assertIsNone(self.api._client)
 
     async def test_rejects_unexpected_node_config_response(self):
         self.client.responses[("GET", "/config/nodes/4")] = ["unexpected"]

@@ -8,8 +8,10 @@
   "documentation": "https://github.com/sysadm1/ducofocus-cb.2.0",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/sysadm1/ducofocus-cb.2.0/issues",
-  "requirements": [],
-  "version": "2.5.0",
+  "requirements": [
+    "ducopy@git+https://github.com/sysadm1/ducopy.git@d556b5eda61dae985abd2089b8b6f97ab2eed852"
+  ],
+  "version": "2.5.1",
   "zeroconf": [
     {
       "type": "_http._tcp.local.",

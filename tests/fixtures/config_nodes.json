@@ -1,0 +1,44 @@
+{
+  "1": {
+    "Node": 1,
+    "Name": {
+      "Val": "DUCObox Focus"
+    }
+  },
+  "2": {
+    "Node": 2,
+    "Name": {
+      "Val": "Keuken"
+    }
+  },
+  "3": {
+    "Node": 3,
+    "Name": {
+      "Val": "Badkamer"
+    }
+  },
+  "4": {
+    "Node": 4,
+    "Name": {
+      "Val": "Toilet"
+    }
+  },
+  "5": {
+    "Node": 5,
+    "Name": {
+      "Val": "Slaapkamer"
+    }
+  },
+  "6": {
+    "Node": 6,
+    "Name": {
+      "Val": "bediening toilet"
+    }
+  },
+  "7": {
+    "Node": 7,
+    "Name": {
+      "Val": "bediening Badkamer"
+    }
+  }
+}

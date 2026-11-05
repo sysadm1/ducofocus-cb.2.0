@@ -39,7 +39,6 @@ class FakeDucoPy:
 
 
 @pytest.fixture
-
 def api_client(
     monkeypatch: pytest.MonkeyPatch,
 ) -> tuple[DucoConnectivityBoardApi, FakeDucoPy]:
@@ -53,7 +52,9 @@ def api_client(
         """Run the fake client's synchronous method immediately."""
         return function(*args, **kwargs)
 
-    monkeypatch.setattr("custom_components.ducobox.api.asyncio.to_thread", run_in_thread)
+    monkeypatch.setattr(
+        "custom_components.ducobox.api.asyncio.to_thread", run_in_thread
+    )
     monkeypatch.setattr(api, "_async_get_client", AsyncMock(return_value=client))
     return api, client
 

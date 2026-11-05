@@ -8,11 +8,16 @@ from typing import Any
 
 from aiohttp import ClientError
 from ducopy import DucoPy
+from loguru import logger as _ducopy_logger
 
 from .models import DucoBoxInfo, DucoBoxNode
 from .utils import format_box_model_name
 
 _LOGGER = logging.getLogger(__name__)
+
+# DucoPy logs every request at INFO level through loguru, which bypasses Home
+# Assistant's logging config and floods the log on every poll. Silence it here.
+_ducopy_logger.disable("ducopy")
 
 
 def _get(data: Any, *keys: str) -> Any:
@@ -46,6 +51,10 @@ class DucoConnectivityBoardApi:
         self._base_url = f"http://{host}"
         self._client: DucoPy | None = None
         self._client_lock = asyncio.Lock()
+        # DucoPy shares one requests.Session (and its Api-Key header refresh)
+        # across calls. requests.Session is not thread-safe, and the main and
+        # options coordinators poll concurrently, so run one call at a time.
+        self._call_lock = asyncio.Lock()
 
     async def _async_get_client(self) -> DucoPy:
         """Create DucoPy lazily, away from Home Assistant's event loop."""
@@ -69,7 +78,8 @@ class DucoConnectivityBoardApi:
         client = await self._async_get_client()
         method = getattr(client, method_name)
         try:
-            return await asyncio.to_thread(method, endpoint, **kwargs)
+            async with self._call_lock:
+                return await asyncio.to_thread(method, endpoint, **kwargs)
         except Exception as err:
             raise DucoConnectivityBoardApiError(
                 f"DucoPy {method_name} {endpoint} failed: {err}"

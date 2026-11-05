@@ -3,4 +3,6 @@ ducopy @ git+https://github.com/sysadm1/ducopy.git@d556b5eda61dae985abd2089b8b6f
 homeassistant==2025.10.1
 pip>=26.2.1
 pytest==8.4.2
+# aiodns 3.5 (pulled in by aiohttp) is incompatible with pycares 5
+pycares<5
 ruff==0.17.1

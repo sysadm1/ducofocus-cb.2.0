@@ -104,6 +104,29 @@ def test_node_mapping_preserves_distinct_sensors_and_zero_end_time(
     assert client.calls == [("GET", "/info/nodes", {})]
 
 
+def test_gets_box_info_without_a_filtered_query(
+    api_client: tuple[DucoConnectivityBoardApi, FakeDucoPy],
+) -> None:
+    """Avoid a `parameter` filter, whose encoded comma some firmware rejects."""
+    api, client = api_client
+    client.responses[("GET", "/info")] = {
+        "General": {
+            "Board": {
+                "BoxName": {"Val": "FOCUS"},
+                "SerialDucoBox": {"Val": "P298565-240110-007"},
+            },
+            "Lan": {"Mac": {"Val": "d8:13:2a:e8:54:9c"}},
+        }
+    }
+
+    info = asyncio.run(api.async_get_box_info())
+
+    assert info.model == "Focus"
+    assert info.serial_number == "P298565-240110-007"
+    assert info.mac_address == "d8:13:2a:e8:54:9c"
+    assert client.calls == [("GET", "/info", {})]
+
+
 def test_reads_actions_advertised_for_one_node(
     api_client: tuple[DucoConnectivityBoardApi, FakeDucoPy],
 ) -> None:

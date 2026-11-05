@@ -93,11 +93,10 @@ class DucoConnectivityBoardApi:
 
     async def async_get_box_info(self) -> DucoBoxInfo:
         """Get identifying information for the DucoBox."""
-        data = await self._async_call(
-            "raw_get",
-            "/info",
-            params={"parameter": "BoxName,SerialDucoBox,Mac"},
-        )
+        # Some board firmware rejects the `parameter` filter because DucoPy's
+        # requests-backed client percent-encodes its commas (`%2C`), which
+        # those boards 400 on. Fetch the unfiltered response instead.
+        data = await self._async_call("raw_get", "/info")
         if not isinstance(data, dict):
             raise DucoConnectivityBoardApiError("Box info response is not an object")
 

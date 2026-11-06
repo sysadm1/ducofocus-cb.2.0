@@ -104,12 +104,13 @@ async def async_setup_entry(
 class DucoBoxNumberEntity(DucoBoxEntity, NumberEntity):
     """Writable integer setting advertised by the Connectivity Board."""
 
-    def __init__(
+    def __init__(  # noqa: PLR0913 - config_node_id can't be derived from node
         self,
         coordinator: DucoBoxCoordinator,
         options_coordinator: DucoBoxOptionsCoordinator,
         node: DucoBoxNode,
         setting: DucoNumericSetting,
+        *,
         config_node_id: int | None,
         description: NumberEntityDescription | None = None,
     ) -> None:

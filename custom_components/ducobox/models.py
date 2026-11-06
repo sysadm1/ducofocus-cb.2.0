@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+_MAX_SLIDER_STEPS = 30
+
 
 @dataclass
 class DucoBoxInfo:
@@ -42,7 +44,7 @@ class DucoNumericSetting:
 
     def prefers_slider(self) -> bool:
         """Use a slider for short ranges and a box for wide ones."""
-        return (self.maximum - self.minimum) / self.step <= 30
+        return (self.maximum - self.minimum) / self.step <= _MAX_SLIDER_STEPS
 
 
 @dataclass

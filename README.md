@@ -28,8 +28,15 @@ The following table lists entities supported by this integration for each node t
 | CO2 Air Quality Index | Sensor | | | | ✓ | | ✓ | ✓ | |
 | Network Type | Sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Identify | Button | ✓ | | | | | | | |
+| Wi-Fi Signal Strength | Sensor | ✓ | | | | | | | |
+| API Writes Remaining | Sensor | ✓ | | | | | | | |
+| Modbus Writes Remaining | Sensor | ✓ | | | | | | | |
+| Cloud Registration | Binary Sensor | ✓ | | | | | | | |
+| Cloud Remote Intervention Allowed | Binary Sensor | ✓ | | | | | | | |
 
 Ventilation control selects are created dynamically for each node whose API advertises the `SetVentilationState` action. The Modbus select is shown only for nodes and modes with a documented Modbus value.
+
+Any integer configuration value the board advertises with a `Min`/`Max`/`Inc` range is exposed as a writable `number` entity (e.g. time zone, DST, Modbus slave address and register offset, automatic reboot schedule, and any ranged per-node setting). LAN settings are excluded, since a bad write there can disconnect the board from Home Assistant. Board-level diagnostics (Wi-Fi signal strength, API/Modbus write budget remaining, cloud registration) and ranged settings are polled hourly rather than on the 30-second node poll, since the board documents most of them as changing at most once a day.
 
 Two Home Assistant services expose other actions and settings advertised by the board:
 

@@ -69,3 +69,14 @@ class DucoBoxNode:
 
     co2: int | None = None
     iaq_co2: int | None = None
+
+    voc: int | None = None
+    iaq_voc: int | None = None
+
+    # DucoBox Energy only (heat recovery with air temperature sensors and a
+    # filter timer); None on models that don't report these.
+    temp_oda: float | None = None
+    temp_sup: float | None = None
+    temp_eta: float | None = None
+    temp_eha: float | None = None
+    filter_time_remain: int | None = None

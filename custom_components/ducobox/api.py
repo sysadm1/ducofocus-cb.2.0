@@ -199,6 +199,12 @@ class DucoConnectivityBoardApi:
             general = node.get("General", {})
             ventilation = node.get("Ventilation", {})
             sensor = node.get("Sensor", {})
+            # Air temperatures and the filter timer live under nested
+            # Ventilation.Sensor / HeatRecovery blocks (per DucoPy's models),
+            # not the node's own top-level Sensor block. Both are reported
+            # only by heat-recovery models such as the DucoBox Energy.
+            ventilation_sensor = ventilation.get("Sensor", {})
+            heat_recovery_general = node.get("HeatRecovery", {}).get("General", {})
             nodes.append(
                 DucoBoxNode(
                     node_id=node_id,
@@ -215,6 +221,15 @@ class DucoConnectivityBoardApi:
                     iaq_rh=_get(sensor, "IaqRh", "Val"),
                     co2=_get(sensor, "Co2", "Val"),
                     iaq_co2=_get(sensor, "IaqCo2", "Val"),
+                    voc=_get(sensor, "Voc", "Val"),
+                    iaq_voc=_get(sensor, "IaqVoc", "Val"),
+                    temp_oda=_get(ventilation_sensor, "TempOda", "Val"),
+                    temp_sup=_get(ventilation_sensor, "TempSup", "Val"),
+                    temp_eta=_get(ventilation_sensor, "TempEta", "Val"),
+                    temp_eha=_get(ventilation_sensor, "TempEha", "Val"),
+                    filter_time_remain=_get(
+                        heat_recovery_general, "TimeFilterRemain", "Val"
+                    ),
                 )
             )
         return nodes

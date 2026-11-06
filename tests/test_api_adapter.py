@@ -127,6 +127,72 @@ def test_gets_box_info_without_a_filtered_query(
     assert client.calls == [("GET", "/info", {})]
 
 
+def test_node_mapping_reads_voc_and_heat_recovery_fields(
+    api_client: tuple[DucoConnectivityBoardApi, FakeDucoPy],
+) -> None:
+    """VOC comes from the node's Sensor block; temps/filter from nested blocks."""
+    api, client = api_client
+    client.responses[("GET", "/info/nodes")] = {
+        "Nodes": [
+            {
+                "Node": 2,
+                "General": {
+                    "Type": {"Val": "VLVVOC"},
+                    "Parent": {"Val": 1},
+                },
+                "Ventilation": {"State": {"Val": "AUTO"}},
+                "Sensor": {"Voc": {"Val": 250}, "IaqVoc": {"Val": 88}},
+            },
+            {
+                "Node": 1,
+                "General": {"Type": {"Val": "BOX"}, "Parent": {"Val": 0}},
+                "Ventilation": {
+                    "State": {"Val": "AUTO"},
+                    "Sensor": {
+                        "TempOda": {"Val": 5.2},
+                        "TempSup": {"Val": 19.1},
+                        "TempEta": {"Val": 20.4},
+                        "TempEha": {"Val": 9.8},
+                    },
+                },
+                "HeatRecovery": {"General": {"TimeFilterRemain": {"Val": 120}}},
+            },
+        ]
+    }
+
+    nodes = asyncio.run(api.async_get_nodes())
+
+    assert nodes[0].voc == 250
+    assert nodes[0].iaq_voc == 88
+    assert nodes[1].temp_oda == 5.2
+    assert nodes[1].temp_sup == 19.1
+    assert nodes[1].temp_eta == 20.4
+    assert nodes[1].temp_eha == 9.8
+    assert nodes[1].filter_time_remain == 120
+
+
+def test_node_mapping_defaults_voc_and_heat_recovery_fields_to_none(
+    api_client: tuple[DucoConnectivityBoardApi, FakeDucoPy],
+) -> None:
+    """Models without these sensors (e.g. the Focus) report None, not an error."""
+    api, client = api_client
+    client.responses[("GET", "/info/nodes")] = {
+        "Nodes": [
+            {
+                "Node": 1,
+                "General": {"Type": {"Val": "BOX"}, "Parent": {"Val": 0}},
+                "Ventilation": {"State": {"Val": "AUTO"}},
+            }
+        ]
+    }
+
+    nodes = asyncio.run(api.async_get_nodes())
+
+    assert nodes[0].voc is None
+    assert nodes[0].temp_oda is None
+    assert nodes[0].filter_time_remain is None
+
+
 def test_reads_actions_advertised_for_one_node(
     api_client: tuple[DucoConnectivityBoardApi, FakeDucoPy],
 ) -> None:

@@ -17,6 +17,7 @@ from homeassistant.const import (
     PERCENTAGE,
     SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
     EntityCategory,
+    UnitOfTemperature,
     UnitOfTime,
 )
 from homeassistant.core import HomeAssistant
@@ -27,13 +28,16 @@ from homeassistant.util.dt import UTC
 from . import DucoBoxConfigEntry
 from .const import (
     DUCOBOX_NODE_TYPE_BOX,
+    DUCOBOX_NODE_TYPE_BSCO2,
     DUCOBOX_NODE_TYPE_BSRH,
     DUCOBOX_NODE_TYPE_UCBAT,
     DUCOBOX_NODE_TYPE_UCCO2,
+    DUCOBOX_NODE_TYPE_UCRH,
     DUCOBOX_NODE_TYPE_VLV,
     DUCOBOX_NODE_TYPE_VLVCO2,
     DUCOBOX_NODE_TYPE_VLVCO2RH,
     DUCOBOX_NODE_TYPE_VLVRH,
+    DUCOBOX_NODE_TYPE_VLVVOC,
     DUCOBOX_VENTILATION_MODES,
 )
 from .coordinator import DucoBoxCoordinator, DucoBoxOptionsCoordinator
@@ -136,6 +140,74 @@ NETWORKTYPE_SENSORS: list[DucoBoxSensorEntityDescription] = [
     )
 ]
 
+# The raw VOC value's unit isn't confirmed against real VLVVOC hardware, so
+# no device_class/unit is set for it; the air quality index mirrors the
+# documented CO2/RH index fields and is a plain percentage.
+VOC_SENSORS: list[DucoBoxSensorEntityDescription] = [
+    DucoBoxSensorEntityDescription(
+        key="voc",
+        translation_key="voc",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.voc,
+    ),
+    DucoBoxSensorEntityDescription(
+        key="iaq_voc",
+        translation_key="iaq_voc",
+        native_unit_of_measurement=PERCENTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.iaq_voc,
+    ),
+]
+
+# DucoBox Energy only; None (shown as unknown) on models without heat
+# recovery, such as the Focus this integration was verified against.
+BOX_HEAT_RECOVERY_SENSORS: list[DucoBoxSensorEntityDescription] = [
+    DucoBoxSensorEntityDescription(
+        key="temp_oda",
+        translation_key="temp_oda",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.temp_oda,
+    ),
+    DucoBoxSensorEntityDescription(
+        key="temp_sup",
+        translation_key="temp_sup",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.temp_sup,
+    ),
+    DucoBoxSensorEntityDescription(
+        key="temp_eta",
+        translation_key="temp_eta",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.temp_eta,
+    ),
+    DucoBoxSensorEntityDescription(
+        key="temp_eha",
+        translation_key="temp_eha",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.temp_eha,
+    ),
+    DucoBoxSensorEntityDescription(
+        key="filter_time_remain",
+        translation_key="filter_time_remain",
+        native_unit_of_measurement=UnitOfTime.DAYS,
+        device_class=SensorDeviceClass.DURATION,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.filter_time_remain,
+    ),
+]
+
 
 @dataclass(frozen=True, kw_only=True)
 class DucoBoxBoardStatusSensorEntityDescription(SensorEntityDescription):
@@ -171,10 +243,16 @@ BOARD_STATUS_SENSORS: list[DucoBoxBoardStatusSensorEntityDescription] = [
 ]
 
 SENSORS_BY_NODE_TYPE: dict[str, list[DucoBoxSensorEntityDescription]] = {
-    DUCOBOX_NODE_TYPE_BOX: [*VENTILATION_SENSORS, *NETWORKTYPE_SENSORS],
+    DUCOBOX_NODE_TYPE_BOX: [
+        *VENTILATION_SENSORS,
+        *NETWORKTYPE_SENSORS,
+        *BOX_HEAT_RECOVERY_SENSORS,
+    ],
+    DUCOBOX_NODE_TYPE_BSCO2: [*CO2_SENSORS, *NETWORKTYPE_SENSORS],
     DUCOBOX_NODE_TYPE_BSRH: [*RH_SENSORS, *NETWORKTYPE_SENSORS],
     DUCOBOX_NODE_TYPE_UCBAT: [*VENTILATION_SENSORS, *NETWORKTYPE_SENSORS],
     DUCOBOX_NODE_TYPE_UCCO2: [*CO2_SENSORS, *NETWORKTYPE_SENSORS],
+    DUCOBOX_NODE_TYPE_UCRH: [*RH_SENSORS, *NETWORKTYPE_SENSORS],
     DUCOBOX_NODE_TYPE_VLV: [*VENTILATION_SENSORS, *NETWORKTYPE_SENSORS],
     DUCOBOX_NODE_TYPE_VLVCO2: [
         *VENTILATION_SENSORS,
@@ -190,6 +268,11 @@ SENSORS_BY_NODE_TYPE: dict[str, list[DucoBoxSensorEntityDescription]] = {
     DUCOBOX_NODE_TYPE_VLVRH: [
         *VENTILATION_SENSORS,
         *RH_SENSORS,
+        *NETWORKTYPE_SENSORS,
+    ],
+    DUCOBOX_NODE_TYPE_VLVVOC: [
+        *VENTILATION_SENSORS,
+        *VOC_SENSORS,
         *NETWORKTYPE_SENSORS,
     ],
 }

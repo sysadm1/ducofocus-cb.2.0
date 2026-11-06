@@ -94,6 +94,9 @@
             "co2": {
                 "name": "CO2"
             },
+            "filter_time_remain": {
+                "name": "Filter Time Remaining"
+            },
             "flow_lvl_tgt": {
                 "name": "Target Flow Level"
             },
@@ -102,6 +105,9 @@
             },
             "iaq_rh": {
                 "name": "Relative Humidity Air Quality Index"
+            },
+            "iaq_voc": {
+                "name": "VOC Air Quality Index"
             },
             "mode": {
                 "name": "Ventilation Mode",
@@ -125,11 +131,26 @@
             "state": {
                 "name": "Ventilation State"
             },
+            "temp_eha": {
+                "name": "Exhaust Air Temperature"
+            },
+            "temp_eta": {
+                "name": "Extract Air Temperature"
+            },
+            "temp_oda": {
+                "name": "Outdoor Air Temperature"
+            },
+            "temp_sup": {
+                "name": "Supply Air Temperature"
+            },
             "time_state_end": {
                 "name": "Ventilation State End Time"
             },
             "time_state_remain": {
                 "name": "Ventilation State Remaining Time"
+            },
+            "voc": {
+                "name": "VOC"
             }
         }
     }

@@ -14,25 +14,33 @@ A Home Assistant integration for DucoBox ventilation systems using the Connectiv
 
 The following table lists entities supported by this integration for each node type:
 
-| Entity | Type | BOX | BSRH | UCBAT | UCCO2 | VLV | VLVCO2 | VLVCO2RH | VLVRH |
-|---:|:---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| Ventilation | Fan | ✓ | | | | ✓ | ✓ | ✓ | ✓ |
-| Ventilation Mode | Sensor | ✓ | | | | ✓ | ✓ | ✓ | ✓ |
-| Ventilation State | Sensor | ✓ | | | | ✓ | ✓ | ✓ | ✓ |
-| Ventilation State End Time | Sensor | ✓ | | | | ✓ | ✓ | ✓ | ✓ |
-| Ventilation State Remaining Time | Sensor | ✓ | | | | ✓ | ✓ | ✓ | ✓ |
-| Target Flow Level | Sensor | ✓ | | | | ✓ | ✓ | ✓ | ✓ |
-| Relative Humidity | Sensor | | ✓ | | | | | ✓ | ✓ |
-| Relative Humidity Air Quality Index | Sensor | | ✓ | | | | | ✓ | ✓ |
-| CO2 | Sensor | | | | ✓ | | ✓ | ✓ | |
-| CO2 Air Quality Index | Sensor | | | | ✓ | | ✓ | ✓ | |
-| Network Type | Sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Identify | Button | ✓ | | | | | | | |
-| Wi-Fi Signal Strength | Sensor | ✓ | | | | | | | |
-| API Writes Remaining | Sensor | ✓ | | | | | | | |
-| Modbus Writes Remaining | Sensor | ✓ | | | | | | | |
-| Cloud Registration | Binary Sensor | ✓ | | | | | | | |
-| Cloud Remote Intervention Allowed | Binary Sensor | ✓ | | | | | | | |
+| Entity | Type | BOX | BSCO2 | BSRH | UCBAT | UCCO2 | UCRH | VLV | VLVCO2 | VLVCO2RH | VLVRH | VLVVOC |
+|---:|:---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| Ventilation | Fan | ✓ | | | | | | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Ventilation Mode | Sensor | ✓ | | | ✓ | | | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Ventilation State | Sensor | ✓ | | | ✓ | | | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Ventilation State End Time | Sensor | ✓ | | | ✓ | | | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Ventilation State Remaining Time | Sensor | ✓ | | | ✓ | | | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Target Flow Level | Sensor | ✓ | | | ✓ | | | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Relative Humidity | Sensor | | | ✓ | | | ✓ | | | ✓ | ✓ | |
+| Relative Humidity Air Quality Index | Sensor | | | ✓ | | | ✓ | | | ✓ | ✓ | |
+| CO2 | Sensor | | ✓ | | | ✓ | | | ✓ | ✓ | | |
+| CO2 Air Quality Index | Sensor | | ✓ | | | ✓ | | | ✓ | ✓ | | |
+| VOC† | Sensor | | | | | | | | | | | ✓ |
+| VOC Air Quality Index† | Sensor | | | | | | | | | | | ✓ |
+| Network Type | Sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Identify | Button | ✓ | | | | | | | | | | |
+| Wi-Fi Signal Strength | Sensor | ✓ | | | | | | | | | | |
+| API Writes Remaining | Sensor | ✓ | | | | | | | | | | |
+| Modbus Writes Remaining | Sensor | ✓ | | | | | | | | | | |
+| Cloud Registration | Binary Sensor | ✓ | | | | | | | | | | |
+| Cloud Remote Intervention Allowed | Binary Sensor | ✓ | | | | | | | | | | |
+| Outdoor/Supply/Extract/Exhaust Air Temperature‡ | Sensor | ✓ | | | | | | | | | | |
+| Filter Time Remaining‡ | Sensor | ✓ | | | | | | | | | | |
+
+† VOC support follows the same `Sensor.Voc`/`Sensor.IaqVoc` naming convention as the confirmed CO2/RH fields, but no VLVVOC hardware was available to verify it against a real board. If you have one and it doesn't show up, [open an issue](https://github.com/sysadm1/ducofocus-cb.2.0/issues) with its raw `/info/nodes` response.
+
+‡ Heat-recovery-only values (e.g. DucoBox Energy). They read as unknown on models without heat recovery, such as the Focus this integration is primarily verified against. Any writable, ranged configuration value the box advertises for the bypass/supply-temperature targets documented for DucoBox Energy is already covered generically by the `number` entities described below, without needing a model-specific code path.
 
 Ventilation control selects are created dynamically for each node whose API advertises the `SetVentilationState` action. The Modbus select is shown only for nodes and modes with a documented Modbus value.
 

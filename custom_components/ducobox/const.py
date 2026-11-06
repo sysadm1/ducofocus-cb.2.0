@@ -29,8 +29,10 @@ MODBUS_VENTILATION_STATE_VALUES = {
     "MAN3x3": 16,
 }
 PLATFORMS: list[Platform] = [
+    Platform.BINARY_SENSOR,
     Platform.BUTTON,
     Platform.FAN,
+    Platform.NUMBER,
     Platform.SELECT,
     Platform.SENSOR,
 ]

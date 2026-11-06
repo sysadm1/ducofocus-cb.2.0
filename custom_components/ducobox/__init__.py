@@ -29,12 +29,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: DucoBoxConfigEntry) -> b
     """Set up DucoBox from a config entry."""
     api = DucoConnectivityBoardApi(entry.data[CONF_HOST])
     try:
-        coordinator = DucoBoxCoordinator(hass, entry, api)
-        await coordinator.async_setup()
-        await coordinator.async_config_entry_first_refresh()
-
         options_coordinator = DucoBoxOptionsCoordinator(hass, entry, api)
         await options_coordinator.async_config_entry_first_refresh()
+
+        coordinator = DucoBoxCoordinator(hass, entry, api, options_coordinator)
+        await coordinator.async_setup()
+        await coordinator.async_config_entry_first_refresh()
 
         entry.runtime_data = DucoBoxRuntimeData(
             coordinator=coordinator,

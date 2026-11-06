@@ -41,9 +41,37 @@
         }
     },
     "entity": {
+        "binary_sensor": {
+            "cloud_registration": {
+                "name": "Cloud Registration"
+            },
+            "cloud_allow_remote": {
+                "name": "Cloud Remote Intervention Allowed"
+            }
+        },
         "button": {
             "identify": {
                 "name": "Identify"
+            }
+        },
+        "number": {
+            "time_zone": {
+                "name": "Time Zone"
+            },
+            "dst": {
+                "name": "Daylight Saving Time"
+            },
+            "modbus_address": {
+                "name": "Modbus Slave Address"
+            },
+            "modbus_register_offset": {
+                "name": "Modbus Register Offset"
+            },
+            "auto_reboot_period": {
+                "name": "Automatic Reboot Period"
+            },
+            "auto_reboot_time": {
+                "name": "Automatic Reboot Time"
             }
         },
         "fan": {
@@ -60,6 +88,9 @@
             }
         },
         "sensor": {
+            "api_writes_remaining": {
+                "name": "API Writes Remaining"
+            },
             "co2": {
                 "name": "CO2"
             },
@@ -79,11 +110,17 @@
                     "manu": "Manual"
                 }
             },
+            "modbus_writes_remaining": {
+                "name": "Modbus Writes Remaining"
+            },
             "network_type": {
                 "name": "Network Type"
             },
             "rh": {
                 "name": "Relative Humidity"
+            },
+            "rssi_wifi": {
+                "name": "Wi-Fi Signal Strength"
             },
             "state": {
                 "name": "Ventilation State"

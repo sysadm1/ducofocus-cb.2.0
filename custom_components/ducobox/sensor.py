@@ -15,6 +15,7 @@ from homeassistant.components.sensor import (
 from homeassistant.const import (
     CONCENTRATION_PARTS_PER_MILLION,
     PERCENTAGE,
+    SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
     EntityCategory,
     UnitOfTime,
 )
@@ -37,7 +38,7 @@ from .const import (
 )
 from .coordinator import DucoBoxCoordinator, DucoBoxOptionsCoordinator
 from .entity import DucoBoxEntity
-from .models import DucoBoxNode
+from .models import DucoBoardStatus, DucoBoxNode
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -55,11 +56,7 @@ VENTILATION_SENSORS: list[DucoBoxSensorEntityDescription] = [
         native_unit_of_measurement=UnitOfTime.SECONDS,
         device_class=SensorDeviceClass.DURATION,
         suggested_display_precision=0,
-        value_fn=lambda data: (
-            value
-            if (value := data.time_state_remain) is not None and value > 0
-            else None
-        ),
+        value_fn=lambda data: data.time_state_remain,
     ),
     DucoBoxSensorEntityDescription(
         key="time_state_end",
@@ -139,10 +136,44 @@ NETWORKTYPE_SENSORS: list[DucoBoxSensorEntityDescription] = [
     )
 ]
 
+
+@dataclass(frozen=True, kw_only=True)
+class DucoBoxBoardStatusSensorEntityDescription(SensorEntityDescription):
+    """Describes a board-level diagnostic sensor sourced from GET /info."""
+
+    value_fn: Callable[[DucoBoardStatus], StateType]
+
+
+BOARD_STATUS_SENSORS: list[DucoBoxBoardStatusSensorEntityDescription] = [
+    DucoBoxBoardStatusSensorEntityDescription(
+        key="rssi_wifi",
+        translation_key="rssi_wifi",
+        native_unit_of_measurement=SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
+        device_class=SensorDeviceClass.SIGNAL_STRENGTH,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda status: status.rssi_wifi,
+    ),
+    DucoBoxBoardStatusSensorEntityDescription(
+        key="api_writes_remaining",
+        translation_key="api_writes_remaining",
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda status: status.api_writes_remaining,
+    ),
+    DucoBoxBoardStatusSensorEntityDescription(
+        key="modbus_writes_remaining",
+        translation_key="modbus_writes_remaining",
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda status: status.modbus_writes_remaining,
+    ),
+]
+
 SENSORS_BY_NODE_TYPE: dict[str, list[DucoBoxSensorEntityDescription]] = {
     DUCOBOX_NODE_TYPE_BOX: [*VENTILATION_SENSORS, *NETWORKTYPE_SENSORS],
     DUCOBOX_NODE_TYPE_BSRH: [*RH_SENSORS, *NETWORKTYPE_SENSORS],
-    DUCOBOX_NODE_TYPE_UCBAT: [*NETWORKTYPE_SENSORS],
+    DUCOBOX_NODE_TYPE_UCBAT: [*VENTILATION_SENSORS, *NETWORKTYPE_SENSORS],
     DUCOBOX_NODE_TYPE_UCCO2: [*CO2_SENSORS, *NETWORKTYPE_SENSORS],
     DUCOBOX_NODE_TYPE_VLV: [*VENTILATION_SENSORS, *NETWORKTYPE_SENSORS],
     DUCOBOX_NODE_TYPE_VLVCO2: [
@@ -173,11 +204,29 @@ async def async_setup_entry(
     coordinator = entry.runtime_data.coordinator
     options_coordinator = entry.runtime_data.options_coordinator
 
-    async_add_entities(
+    entities: list[SensorEntity] = [
         DucoBoxSensorEntity(coordinator, options_coordinator, node, sensor_description)
         for node in coordinator.data.values()
         for sensor_description in SENSORS_BY_NODE_TYPE.get(node.node_type, [])
+    ]
+
+    box = next(
+        (
+            node
+            for node in coordinator.data.values()
+            if node.node_type == DUCOBOX_NODE_TYPE_BOX
+        ),
+        None,
     )
+    if box is not None and options_coordinator.board_status is not None:
+        entities.extend(
+            DucoBoxBoardStatusSensorEntity(
+                coordinator, options_coordinator, box, description
+            )
+            for description in BOARD_STATUS_SENSORS
+        )
+
+    async_add_entities(entities)
 
 
 class DucoBoxSensorEntity(DucoBoxEntity, SensorEntity):
@@ -217,3 +266,30 @@ class DucoBoxSensorEntity(DucoBoxEntity, SensorEntity):
         """Return the value reported by the DucoBox sensor."""
         node = self.coordinator.data[self._node_id]
         return self.entity_description.value_fn(node)
+
+
+class DucoBoxBoardStatusSensorEntity(DucoBoxEntity, SensorEntity):
+    """Board-level diagnostic sensor sourced from GET /info."""
+
+    entity_description: DucoBoxBoardStatusSensorEntityDescription
+
+    def __init__(
+        self,
+        coordinator: DucoBoxCoordinator,
+        options_coordinator: DucoBoxOptionsCoordinator,
+        node: DucoBoxNode,
+        description: DucoBoxBoardStatusSensorEntityDescription,
+    ) -> None:
+        """Initialize the board status sensor."""
+        super().__init__(coordinator, node)
+        self._options_coordinator = options_coordinator
+        self.entity_description = description
+        self._attr_unique_id = (
+            f"{coordinator.config_entry.entry_id}_{node.node_id}_{description.key}"
+        )
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the current diagnostic value."""
+        status = self._options_coordinator.board_status
+        return None if status is None else self.entity_description.value_fn(status)

@@ -10,7 +10,7 @@ from aiohttp import ClientError
 from ducopy import DucoPy
 from loguru import logger as _ducopy_logger
 
-from .models import DucoBoxInfo, DucoBoxNode
+from .models import DucoBoardStatus, DucoBoxInfo, DucoBoxNode, DucoNumericSetting
 from .utils import format_box_model_name
 
 _LOGGER = logging.getLogger(__name__)
@@ -36,6 +36,81 @@ def _get_required(data: Any, *keys: str) -> Any:
     if value is None:
         raise DucoConnectivityBoardApiError(f"Failed to get {keys[-1]}")
     return value
+
+
+def _as_int(value: Any) -> int | None:
+    """Return an integer value, ignoring booleans and other types."""
+    if isinstance(value, bool) or not isinstance(value, int):
+        return None
+    return value
+
+
+def parse_board_status(data: Any) -> DucoBoardStatus:
+    """Read diagnostic board values, without storing secrets from the payload."""
+    if not isinstance(data, dict):
+        raise DucoConnectivityBoardApiError("Board info response is not an object")
+    return DucoBoardStatus(
+        rssi_wifi=_as_int(_get(data, "General", "Lan", "RssiWifi", "Val")),
+        api_writes_remaining=_as_int(
+            _get(data, "General", "PublicApi", "WriteReqCntRemain", "Val")
+        ),
+        modbus_writes_remaining=_as_int(
+            _get(data, "General", "Modbus", "WriteReqCntRemain", "Val")
+        ),
+        cloud_registration=(
+            registration
+            if isinstance(
+                registration := _get(
+                    data, "General", "Cloud", "RegistrationMode", "Val"
+                ),
+                bool,
+            )
+            else None
+        ),
+        cloud_allow_remote=(
+            remote
+            if isinstance(
+                remote := _get(
+                    data, "General", "Cloud", "AllowRemoteIntervention", "Val"
+                ),
+                bool,
+            )
+            else None
+        ),
+    )
+
+
+def parse_numeric_settings(data: Any) -> dict[str, DucoNumericSetting]:
+    """Collect integer settings that advertise Min, Max and Inc.
+
+    LAN settings are skipped. Changing them can disconnect Home Assistant from
+    the board. Fields without a range, such as a node name, are skipped too.
+    """
+    found: dict[str, DucoNumericSetting] = {}
+
+    def walk(value: Any, path: tuple[str, ...]) -> None:
+        if path[:2] == ("General", "Lan") or any(
+            "key" in part.lower() for part in path
+        ):
+            return
+        if not isinstance(value, dict):
+            return
+        raw = value.get("Val")
+        minimum = _as_int(value.get("Min"))
+        maximum = _as_int(value.get("Max"))
+        number = _as_int(raw)
+        if number is not None and minimum is not None and maximum is not None:
+            step = _as_int(value.get("Inc")) or 1
+            if step > 0 and minimum <= number <= maximum:
+                setting = DucoNumericSetting(path, number, minimum, maximum, step)
+                found[setting.key] = setting
+            return
+        for key, child in value.items():
+            if isinstance(child, dict):
+                walk(child, (*path, str(key)))
+
+    walk(data, ())
+    return found
 
 
 class DucoConnectivityBoardApiError(ClientError):
@@ -234,3 +309,14 @@ class DucoConnectivityBoardApi:
 
         endpoint = "/config" if node_id is None else f"/config/nodes/{node_id}"
         await self._async_call("raw_patch", endpoint, data=patch)
+
+    async def async_get_board_status(self) -> DucoBoardStatus:
+        """Get diagnostic board values from the full info response."""
+        data = await self._async_call("raw_get", "/info")
+        return parse_board_status(data)
+
+    async def async_get_numeric_settings(
+        self, node_id: int | None = None
+    ) -> dict[str, DucoNumericSetting]:
+        """Get ranged integer settings for the box or one node."""
+        return parse_numeric_settings(await self.async_get_config(node_id))

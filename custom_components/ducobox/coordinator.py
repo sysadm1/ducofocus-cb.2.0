@@ -23,7 +23,7 @@ from .const import (
     DEFAULT_MODBUS_SLAVE,
     MODBUS_VENTILATION_STATE_VALUES,
 )
-from .models import DucoBoxInfo, DucoBoxNode
+from .models import DucoBoardStatus, DucoBoxInfo, DucoBoxNode, DucoNumericSetting
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -53,6 +53,7 @@ class DucoBoxCoordinator(DataUpdateCoordinator[dict[int, DucoBoxNode]]):
         hass: HomeAssistant,
         config_entry: ConfigEntry,
         api: DucoConnectivityBoardApi,
+        options_coordinator: DucoBoxOptionsCoordinator,
     ) -> None:
         """Initialize coordinator."""
         super().__init__(
@@ -65,6 +66,7 @@ class DucoBoxCoordinator(DataUpdateCoordinator[dict[int, DucoBoxNode]]):
         )
         self.api = api
         self.config_entry = config_entry
+        self._options_coordinator = options_coordinator
         self._write_lock = asyncio.Lock()
         self._last_write_at = 0.0
 
@@ -117,7 +119,12 @@ class DucoBoxCoordinator(DataUpdateCoordinator[dict[int, DucoBoxNode]]):
             raise HomeAssistantError(f"Unsupported Modbus ventilation state: {state}")
 
         hub = self.config_entry.options.get(CONF_MODBUS_HUB, DEFAULT_MODBUS_HUB)
-        slave = self.config_entry.options.get(CONF_MODBUS_SLAVE, DEFAULT_MODBUS_SLAVE)
+        slave = self.config_entry.options.get(CONF_MODBUS_SLAVE)
+        if slave is None:
+            advertised = self._options_coordinator.box_settings.get(
+                "General.Modbus.Addr"
+            )
+            slave = advertised.value if advertised is not None else DEFAULT_MODBUS_SLAVE
         offset = self.config_entry.options.get(
             CONF_MODBUS_ADDRESS_OFFSET, DEFAULT_MODBUS_ADDRESS_OFFSET
         )
@@ -190,7 +197,14 @@ class DucoBoxCoordinator(DataUpdateCoordinator[dict[int, DucoBoxNode]]):
 
 
 class DucoBoxOptionsCoordinator(DataUpdateCoordinator[dict[int, list[str]]]):
-    """Class to manage fetching DucoBox ventilation state options."""
+    """Class to manage fetching DucoBox data that rarely changes.
+
+    Ventilation state options, board diagnostics and ranged numeric
+    settings are all slow-moving (the official Modbus register map
+    recommends surveying most of them once a day or one-time), so they
+    are polled hourly here instead of on the node coordinator's 30s
+    interval, to avoid amplifying every poll into a GET per node.
+    """
 
     def __init__(
         self,
@@ -208,11 +222,27 @@ class DucoBoxOptionsCoordinator(DataUpdateCoordinator[dict[int, list[str]]]):
             always_update=False,
         )
         self.api = api
+        self.board_status: DucoBoardStatus | None = None
+        self.box_settings: dict[str, DucoNumericSetting] = {}
+        self.node_settings: dict[int, dict[str, DucoNumericSetting]] = {}
 
     async def _async_update_data(self) -> dict[int, list[str]]:
         """Update the data."""
         try:
-            return await self.api.async_get_ventilation_state_options()
+            options = await self.api.async_get_ventilation_state_options()
+            nodes = await self.api.async_get_nodes()
+            board_status = await self.api.async_get_board_status()
+            box_settings = await self.api.async_get_numeric_settings()
+            node_settings: dict[int, dict[str, DucoNumericSetting]] = {}
+            for node in nodes:
+                node_settings[node.node_id] = await self.api.async_get_numeric_settings(
+                    node.node_id
+                )
         except (ClientError, DucoConnectivityBoardApiError) as err:
             msg = f"Failed to get ventilation state options: {err}"
             raise UpdateFailed(msg) from err
+
+        self.board_status = board_status
+        self.box_settings = box_settings
+        self.node_settings = node_settings
+        return options

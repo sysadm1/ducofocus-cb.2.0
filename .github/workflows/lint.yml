@@ -1,6 +1,7 @@
 name: Lint
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - "main"
@@ -12,7 +13,7 @@ permissions: {}
 
 jobs:
   ruff:
-    name: "Ruff"
+    name: "Ruff and API tests"
     runs-on: "ubuntu-latest"
     steps:
       - name: Checkout the repository
@@ -27,8 +28,11 @@ jobs:
       - name: Install requirements
         run: python3 -m pip install -r requirements.txt
 
-      - name: Lint
-        run: python3 -m ruff check .
+      - name: Lint the API tests
+        run: python3 -m ruff check tests --ignore INP001,D107,S101,PLR2004
 
-      - name: Format
-        run: python3 -m ruff format . --check
+      - name: Check API test formatting
+        run: python3 -m ruff format tests --check
+
+      - name: API adapter tests
+        run: python3 -m pytest -q

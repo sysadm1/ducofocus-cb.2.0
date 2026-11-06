@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+_MAX_SLIDER_STEPS = 30
+
 
 @dataclass
 class DucoBoxInfo:
@@ -12,6 +14,37 @@ class DucoBoxInfo:
     model: str
     serial_number: str
     mac_address: str
+
+
+@dataclass(frozen=True)
+class DucoBoardStatus:
+    """Diagnostic values reported by GET /info."""
+
+    rssi_wifi: int | None = None
+    api_writes_remaining: int | None = None
+    modbus_writes_remaining: int | None = None
+    cloud_registration: bool | None = None
+    cloud_allow_remote: bool | None = None
+
+
+@dataclass(frozen=True)
+class DucoNumericSetting:
+    """One integer configuration value advertised with a range."""
+
+    path: tuple[str, ...]
+    value: int
+    minimum: int
+    maximum: int
+    step: int
+
+    @property
+    def key(self) -> str:
+        """Return the dotted path used by the configuration API."""
+        return ".".join(self.path)
+
+    def prefers_slider(self) -> bool:
+        """Use a slider for short ranges and a box for wide ones."""
+        return (self.maximum - self.minimum) / self.step <= _MAX_SLIDER_STEPS
 
 
 @dataclass
@@ -36,3 +69,14 @@ class DucoBoxNode:
 
     co2: int | None = None
     iaq_co2: int | None = None
+
+    voc: int | None = None
+    iaq_voc: int | None = None
+
+    # DucoBox Energy only (heat recovery with air temperature sensors and a
+    # filter timer); None on models that don't report these.
+    temp_oda: float | None = None
+    temp_sup: float | None = None
+    temp_eta: float | None = None
+    temp_eha: float | None = None
+    filter_time_remain: int | None = None

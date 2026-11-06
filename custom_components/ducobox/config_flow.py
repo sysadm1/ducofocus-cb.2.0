@@ -15,7 +15,6 @@ from homeassistant.config_entries import (
     OptionsFlowWithReload,
 )
 from homeassistant.const import CONF_HOST
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import DucoConnectivityBoardApi
 from .const import (
@@ -126,9 +125,12 @@ class DucoBoxConfigFlow(ConfigFlow, domain=DOMAIN):
         )
 
     async def _async_get_device_info(self, host: str) -> DucoBoxInfo:
-        session = async_get_clientsession(self.hass)
-        api = DucoConnectivityBoardApi(host, session)
-        return await api.async_get_box_info()
+        """Fetch setup info and release the temporary DucoPy session."""
+        api = DucoConnectivityBoardApi(host)
+        try:
+            return await api.async_get_box_info()
+        finally:
+            await api.async_close()
 
 
 class DucoBoxOptionsFlow(OptionsFlowWithReload):

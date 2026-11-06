@@ -22,6 +22,7 @@ from .const import (
     DUCOBOX_NODE_TYPE_VLVCO2,
     DUCOBOX_NODE_TYPE_VLVCO2RH,
     DUCOBOX_NODE_TYPE_VLVRH,
+    DUCOBOX_NODE_TYPE_VLVVOC,
 )
 from .coordinator import DucoBoxCoordinator, DucoBoxOptionsCoordinator
 from .entity import DucoBoxEntity
@@ -72,6 +73,7 @@ FANS_BY_NODE_TYPE: dict[str, list[DucoBoxFanEntityDescription]] = {
     DUCOBOX_NODE_TYPE_VLVCO2: [VENTILATION_FAN],
     DUCOBOX_NODE_TYPE_VLVCO2RH: [VENTILATION_FAN],
     DUCOBOX_NODE_TYPE_VLVRH: [VENTILATION_FAN],
+    DUCOBOX_NODE_TYPE_VLVVOC: [VENTILATION_FAN],
 }
 
 

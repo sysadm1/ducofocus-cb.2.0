@@ -1,0 +1,226 @@
+{
+  "1": {
+    "Node": 1,
+    "Actions": [
+      {
+        "Action": "SetVentilationState",
+        "ValType": "Enum",
+        "Enum": [
+          "AUTO",
+          "AUT1",
+          "AUT2",
+          "AUT3",
+          "MAN1",
+          "MAN2",
+          "MAN3",
+          "EMPT",
+          "CNT1",
+          "CNT2",
+          "CNT3",
+          "MAN1x2",
+          "MAN2x2",
+          "MAN3x2",
+          "MAN1x3",
+          "MAN2x3",
+          "MAN3x3"
+        ]
+      },
+      {
+        "Action": "SetIdentify",
+        "ValType": "Boolean"
+      }
+    ]
+  },
+  "2": {
+    "Node": 2,
+    "Actions": [
+      {
+        "Action": "SetVentilationState",
+        "ValType": "Enum",
+        "Enum": [
+          "AUTO",
+          "AUT1",
+          "AUT2",
+          "AUT3",
+          "MAN1",
+          "MAN2",
+          "MAN3",
+          "EMPT",
+          "CNT1",
+          "CNT2",
+          "CNT3",
+          "MAN1x2",
+          "MAN2x2",
+          "MAN3x2",
+          "MAN1x3",
+          "MAN2x3",
+          "MAN3x3"
+        ]
+      },
+      {
+        "Action": "SetIdentify",
+        "ValType": "Boolean"
+      }
+    ]
+  },
+  "3": {
+    "Node": 3,
+    "Actions": [
+      {
+        "Action": "SetVentilationState",
+        "ValType": "Enum",
+        "Enum": [
+          "AUTO",
+          "AUT1",
+          "AUT2",
+          "AUT3",
+          "MAN1",
+          "MAN2",
+          "MAN3",
+          "EMPT",
+          "CNT1",
+          "CNT2",
+          "CNT3",
+          "MAN1x2",
+          "MAN2x2",
+          "MAN3x2",
+          "MAN1x3",
+          "MAN2x3",
+          "MAN3x3"
+        ]
+      },
+      {
+        "Action": "SetIdentify",
+        "ValType": "Boolean"
+      }
+    ]
+  },
+  "4": {
+    "Node": 4,
+    "Actions": [
+      {
+        "Action": "SetVentilationState",
+        "ValType": "Enum",
+        "Enum": [
+          "AUTO",
+          "AUT1",
+          "AUT2",
+          "AUT3",
+          "MAN1",
+          "MAN2",
+          "MAN3",
+          "EMPT",
+          "CNT1",
+          "CNT2",
+          "CNT3",
+          "MAN1x2",
+          "MAN2x2",
+          "MAN3x2",
+          "MAN1x3",
+          "MAN2x3",
+          "MAN3x3"
+        ]
+      },
+      {
+        "Action": "SetIdentify",
+        "ValType": "Boolean"
+      }
+    ]
+  },
+  "5": {
+    "Node": 5,
+    "Actions": [
+      {
+        "Action": "SetVentilationState",
+        "ValType": "Enum",
+        "Enum": [
+          "AUTO",
+          "AUT1",
+          "AUT2",
+          "AUT3",
+          "MAN1",
+          "MAN2",
+          "MAN3",
+          "EMPT",
+          "CNT1",
+          "CNT2",
+          "CNT3",
+          "MAN1x2",
+          "MAN2x2",
+          "MAN3x2",
+          "MAN1x3",
+          "MAN2x3",
+          "MAN3x3"
+        ]
+      },
+      {
+        "Action": "SetIdentify",
+        "ValType": "Boolean"
+      }
+    ]
+  },
+  "6": {
+    "Node": 6,
+    "Actions": [
+      {
+        "Action": "SetVentilationState",
+        "ValType": "Enum",
+        "Enum": [
+          "AUTO",
+          "AUT1",
+          "AUT2",
+          "AUT3",
+          "MAN1",
+          "MAN2",
+          "MAN3",
+          "EMPT",
+          "CNT1",
+          "CNT2",
+          "CNT3",
+          "MAN1x2",
+          "MAN2x2",
+          "MAN3x2",
+          "MAN1x3",
+          "MAN2x3",
+          "MAN3x3"
+        ]
+      },
+      {
+        "Action": "SetIdentify",
+        "ValType": "Boolean"
+      }
+    ]
+  },
+  "7": {
+    "Node": 7,
+    "Actions": [
+      {
+        "Action": "SetVentilationState",
+        "ValType": "Enum",
+        "Enum": [
+          "AUTO",
+          "AUT1",
+          "AUT2",
+          "AUT3",
+          "MAN1",
+          "MAN2",
+          "MAN3",
+          "EMPT",
+          "CNT1",
+          "CNT2",
+          "CNT3",
+          "MAN1x2",
+          "MAN2x2",
+          "MAN3x2",
+          "MAN1x3",
+          "MAN2x3",
+          "MAN3x3"
+        ]
+      },
+      {
+        "Action": "SetIdentify",
+        "ValType": "Boolean"
+      }
+    ]
+  }
+}

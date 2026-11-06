@@ -41,9 +41,37 @@
         }
     },
     "entity": {
+        "binary_sensor": {
+            "cloud_registration": {
+                "name": "Cloud Registration"
+            },
+            "cloud_allow_remote": {
+                "name": "Cloud Remote Intervention Allowed"
+            }
+        },
         "button": {
             "identify": {
                 "name": "Identify"
+            }
+        },
+        "number": {
+            "time_zone": {
+                "name": "Time Zone"
+            },
+            "dst": {
+                "name": "Daylight Saving Time"
+            },
+            "modbus_address": {
+                "name": "Modbus Slave Address"
+            },
+            "modbus_register_offset": {
+                "name": "Modbus Register Offset"
+            },
+            "auto_reboot_period": {
+                "name": "Automatic Reboot Period"
+            },
+            "auto_reboot_time": {
+                "name": "Automatic Reboot Time"
             }
         },
         "fan": {
@@ -60,8 +88,14 @@
             }
         },
         "sensor": {
+            "api_writes_remaining": {
+                "name": "API Writes Remaining"
+            },
             "co2": {
                 "name": "CO2"
+            },
+            "filter_time_remain": {
+                "name": "Filter Time Remaining"
             },
             "flow_lvl_tgt": {
                 "name": "Target Flow Level"
@@ -72,6 +106,9 @@
             "iaq_rh": {
                 "name": "Relative Humidity Air Quality Index"
             },
+            "iaq_voc": {
+                "name": "VOC Air Quality Index"
+            },
             "mode": {
                 "name": "Ventilation Mode",
                 "state": {
@@ -79,20 +116,41 @@
                     "manu": "Manual"
                 }
             },
+            "modbus_writes_remaining": {
+                "name": "Modbus Writes Remaining"
+            },
             "network_type": {
                 "name": "Network Type"
             },
             "rh": {
                 "name": "Relative Humidity"
             },
+            "rssi_wifi": {
+                "name": "Wi-Fi Signal Strength"
+            },
             "state": {
                 "name": "Ventilation State"
+            },
+            "temp_eha": {
+                "name": "Exhaust Air Temperature"
+            },
+            "temp_eta": {
+                "name": "Extract Air Temperature"
+            },
+            "temp_oda": {
+                "name": "Outdoor Air Temperature"
+            },
+            "temp_sup": {
+                "name": "Supply Air Temperature"
             },
             "time_state_end": {
                 "name": "Ventilation State End Time"
             },
             "time_state_remain": {
                 "name": "Ventilation State Remaining Time"
+            },
+            "voc": {
+                "name": "VOC"
             }
         }
     }

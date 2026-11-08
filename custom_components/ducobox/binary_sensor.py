@@ -6,6 +6,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from homeassistant.components.binary_sensor import (
+    BinarySensorDeviceClass,
     BinarySensorEntity,
     BinarySensorEntityDescription,
 )
@@ -39,6 +40,13 @@ BOARD_BINARY_SENSORS: tuple[DucoBoxBinarySensorEntityDescription, ...] = (
         translation_key="cloud_allow_remote",
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda status: status.cloud_allow_remote,
+    ),
+    # Requires a DUCO weather station accessory; unknown without one.
+    DucoBoxBinarySensorEntityDescription(
+        key="weather_precipitation",
+        translation_key="weather_precipitation",
+        device_class=BinarySensorDeviceClass.MOISTURE,
+        value_fn=lambda status: status.weather_precipitation,
     ),
 )
 

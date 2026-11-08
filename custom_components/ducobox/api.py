@@ -45,10 +45,32 @@ def _as_int(value: Any) -> int | None:
     return value
 
 
+def _find_diag_status(data: Any, component: str) -> str | None:
+    """
+    Return one Diag.SubSystems entry's Status, lowercased.
+
+    DUCO's own OpenAPI spec documents this list's key as "SubSystem", but
+    the Connectivity Board's actual local response uses "Component"
+    instead. Accept either so this keeps working if that's ever fixed.
+    """
+    subsystems = _get(data, "Diag", "SubSystems")
+    if not isinstance(subsystems, list):
+        return None
+    for entry in subsystems:
+        if not isinstance(entry, dict):
+            continue
+        name = entry.get("Component", entry.get("SubSystem"))
+        if name == component:
+            status = entry.get("Status")
+            return status.lower() if isinstance(status, str) else None
+    return None
+
+
 def parse_board_status(data: Any) -> DucoBoardStatus:
     """Read diagnostic board values, without storing secrets from the payload."""
     if not isinstance(data, dict):
         raise DucoConnectivityBoardApiError("Board info response is not an object")
+    weather = _get(data, "WeatherHandler", "WeatherStation") or {}
     return DucoBoardStatus(
         rssi_wifi=_as_int(_get(data, "General", "Lan", "RssiWifi", "Val")),
         api_writes_remaining=_as_int(
@@ -77,6 +99,17 @@ def parse_board_status(data: Any) -> DucoBoardStatus:
             )
             else None
         ),
+        ventilation_diag_status=_find_diag_status(data, "Ventilation"),
+        weather_temp_outside=_get(weather, "TempOutside", "Val"),
+        weather_wind_speed_dmps=_get(weather, "SpeedWind", "Val"),
+        weather_precipitation=(
+            precip
+            if isinstance(precip := _get(weather, "Precip", "Val"), bool)
+            else None
+        ),
+        weather_irradiance_south_klx=_get(weather, "IrradSouth", "Val"),
+        weather_irradiance_east_klx=_get(weather, "IrradEast", "Val"),
+        weather_irradiance_west_klx=_get(weather, "IrradWest", "Val"),
     )
 
 

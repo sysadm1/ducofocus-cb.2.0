@@ -90,6 +90,69 @@ def test_parse_board_status_ignores_non_boolean_cloud_values() -> None:
     assert status.cloud_registration is None
 
 
+def test_parse_board_status_reads_diag_status_using_the_real_component_key() -> None:
+    """The real board uses "Component", not the documented "SubSystem" key."""
+    data = {"Diag": {"SubSystems": [{"Component": "Ventilation", "Status": "Ok"}]}}
+
+    status = parse_board_status(data)
+
+    assert status.ventilation_diag_status == "ok"
+
+
+def test_parse_board_status_also_accepts_the_documented_subsystem_key() -> None:
+    """Fall back to the OpenAPI-documented key, in case that's ever used."""
+    data = {"Diag": {"SubSystems": [{"SubSystem": "Ventilation", "Status": "Error"}]}}
+
+    status = parse_board_status(data)
+
+    assert status.ventilation_diag_status == "error"
+
+
+def test_parse_board_status_defaults_diag_status_to_none_when_absent() -> None:
+    """No Diag block (or no matching entry) yields None, not a crash."""
+    assert parse_board_status({}).ventilation_diag_status is None
+    assert (
+        parse_board_status(
+            {"Diag": {"SubSystems": [{"Component": "Other", "Status": "Ok"}]}}
+        ).ventilation_diag_status
+        is None
+    )
+
+
+def test_parse_board_status_reads_weather_station_fields() -> None:
+    """Weather station values are read when a DUCO weather station is attached."""
+    data = {
+        "WeatherHandler": {
+            "WeatherStation": {
+                "TempOutside": {"Val": 18},
+                "SpeedWind": {"Val": 120},
+                "Precip": {"Val": True},
+                "IrradSouth": {"Val": 23},
+                "IrradEast": {"Val": 50},
+                "IrradWest": {"Val": 25},
+            }
+        }
+    }
+
+    status = parse_board_status(data)
+
+    assert status.weather_temp_outside == 18
+    assert status.weather_wind_speed_dmps == 120
+    assert status.weather_precipitation is True
+    assert status.weather_irradiance_south_klx == 23
+    assert status.weather_irradiance_east_klx == 50
+    assert status.weather_irradiance_west_klx == 25
+
+
+def test_parse_board_status_defaults_weather_fields_to_none_without_a_station() -> None:
+    """Boxes without a weather station report None, not an error."""
+    status = parse_board_status({})
+
+    assert status.weather_temp_outside is None
+    assert status.weather_wind_speed_dmps is None
+    assert status.weather_precipitation is None
+
+
 def test_parse_board_status_rejects_non_object_response() -> None:
     """A non-dict /info response is a clear API error, not a silent default."""
     with pytest.raises(DucoConnectivityBoardApiError):

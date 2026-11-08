@@ -37,10 +37,17 @@ The following table lists entities supported by this integration for each node t
 | Cloud Remote Intervention Allowed | Binary Sensor | ✓ | | | | | | | | | | |
 | Outdoor/Supply/Extract/Exhaust Air Temperature‡ | Sensor | ✓ | | | | | | | | | | |
 | Filter Time Remaining‡ | Sensor | ✓ | | | | | | | | | | |
+| Ventilation Diagnostic Status | Sensor | ✓ | | | | | | | | | | |
+| Outdoor Temperature, Wind Speed, Light Intensity (S/E/W)§ | Sensor | ✓ | | | | | | | | | | |
+| Rain§ | Binary Sensor | ✓ | | | | | | | | | | |
 
 † VOC support follows the same `Sensor.Voc`/`Sensor.IaqVoc` naming convention as the confirmed CO2/RH fields, but no VLVVOC hardware was available to verify it against a real board. If you have one and it doesn't show up, [open an issue](https://github.com/sysadm1/ducofocus-cb.2.0/issues) with its raw `/info/nodes` response.
 
 ‡ Heat-recovery-only values (e.g. DucoBox Energy). They read as unknown on models without heat recovery, such as the Focus this integration is primarily verified against. Any writable, ranged configuration value the box advertises for the bypass/supply-temperature targets documented for DucoBox Energy is already covered generically by the `number` entities described below, without needing a model-specific code path.
+
+§ Requires a DUCO weather station accessory attached to the box; read as unknown without one. Verified against DUCO's official API schema, but not against real weather-station hardware (the maintainer's box doesn't have one). If something looks off, [open an issue](https://github.com/sysadm1/ducofocus-cb.2.0/issues).
+
+The "Ventilation Diagnostic Status" sensor reads `Diag.SubSystems` from `GET /info`. Note that DUCO's own OpenAPI spec documents that list's key as `SubSystem`, but the Connectivity Board's real local response uses `Component` instead; this integration accepts either.
 
 Ventilation control selects are created dynamically for each node whose API advertises the `SetVentilationState` action. The Modbus select is shown only for nodes and modes with a documented Modbus value.
 

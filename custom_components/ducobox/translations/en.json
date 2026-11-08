@@ -47,6 +47,9 @@
             },
             "cloud_allow_remote": {
                 "name": "Cloud Remote Intervention Allowed"
+            },
+            "weather_precipitation": {
+                "name": "Rain"
             }
         },
         "button": {
@@ -149,8 +152,31 @@
             "time_state_remain": {
                 "name": "Ventilation State Remaining Time"
             },
+            "ventilation_diag_status": {
+                "name": "Ventilation Diagnostic Status",
+                "state": {
+                    "ok": "OK",
+                    "disable": "Disabled",
+                    "error": "Error"
+                }
+            },
             "voc": {
                 "name": "VOC"
+            },
+            "weather_irradiance_east": {
+                "name": "Light Intensity East"
+            },
+            "weather_irradiance_south": {
+                "name": "Light Intensity South"
+            },
+            "weather_irradiance_west": {
+                "name": "Light Intensity West"
+            },
+            "weather_temp_outside": {
+                "name": "Outdoor Temperature (Weather Station)"
+            },
+            "weather_wind_speed": {
+                "name": "Wind Speed"
             }
         }
     }

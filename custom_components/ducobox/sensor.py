@@ -14,9 +14,11 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.const import (
     CONCENTRATION_PARTS_PER_MILLION,
+    LIGHT_LUX,
     PERCENTAGE,
     SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
     EntityCategory,
+    UnitOfSpeed,
     UnitOfTemperature,
     UnitOfTime,
 )
@@ -239,6 +241,74 @@ BOARD_STATUS_SENSORS: list[DucoBoxBoardStatusSensorEntityDescription] = [
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda status: status.modbus_writes_remaining,
+    ),
+    DucoBoxBoardStatusSensorEntityDescription(
+        key="ventilation_diag_status",
+        translation_key="ventilation_diag_status",
+        device_class=SensorDeviceClass.ENUM,
+        options=["ok", "disable", "error"],
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda status: status.ventilation_diag_status,
+    ),
+    # The following require a DUCO weather station accessory; None (shown
+    # as unknown) without one.
+    DucoBoxBoardStatusSensorEntityDescription(
+        key="weather_temp_outside",
+        translation_key="weather_temp_outside",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda status: status.weather_temp_outside,
+    ),
+    DucoBoxBoardStatusSensorEntityDescription(
+        key="weather_wind_speed",
+        translation_key="weather_wind_speed",
+        native_unit_of_measurement=UnitOfSpeed.METERS_PER_SECOND,
+        device_class=SensorDeviceClass.WIND_SPEED,
+        state_class=SensorStateClass.MEASUREMENT,
+        # The board reports wind speed in decimetres/second.
+        value_fn=lambda status: (
+            None
+            if status.weather_wind_speed_dmps is None
+            else status.weather_wind_speed_dmps / 10
+        ),
+    ),
+    DucoBoxBoardStatusSensorEntityDescription(
+        key="weather_irradiance_south",
+        translation_key="weather_irradiance_south",
+        native_unit_of_measurement=LIGHT_LUX,
+        device_class=SensorDeviceClass.ILLUMINANCE,
+        state_class=SensorStateClass.MEASUREMENT,
+        # The board reports irradiance in kilolux.
+        value_fn=lambda status: (
+            None
+            if status.weather_irradiance_south_klx is None
+            else status.weather_irradiance_south_klx * 1000
+        ),
+    ),
+    DucoBoxBoardStatusSensorEntityDescription(
+        key="weather_irradiance_east",
+        translation_key="weather_irradiance_east",
+        native_unit_of_measurement=LIGHT_LUX,
+        device_class=SensorDeviceClass.ILLUMINANCE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda status: (
+            None
+            if status.weather_irradiance_east_klx is None
+            else status.weather_irradiance_east_klx * 1000
+        ),
+    ),
+    DucoBoxBoardStatusSensorEntityDescription(
+        key="weather_irradiance_west",
+        translation_key="weather_irradiance_west",
+        native_unit_of_measurement=LIGHT_LUX,
+        device_class=SensorDeviceClass.ILLUMINANCE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda status: (
+            None
+            if status.weather_irradiance_west_klx is None
+            else status.weather_irradiance_west_klx * 1000
+        ),
     ),
 ]
 

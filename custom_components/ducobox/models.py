@@ -26,6 +26,19 @@ class DucoBoardStatus:
     cloud_registration: bool | None = None
     cloud_allow_remote: bool | None = None
 
+    # Overall health of the Ventilation subsystem, as reported by
+    # Diag.SubSystems. "ok", "disable" or "error", lowercased from the
+    # board's response.
+    ventilation_diag_status: str | None = None
+
+    # Only present with a DUCO weather station accessory attached.
+    weather_temp_outside: float | None = None
+    weather_wind_speed_dmps: float | None = None
+    weather_precipitation: bool | None = None
+    weather_irradiance_south_klx: float | None = None
+    weather_irradiance_east_klx: float | None = None
+    weather_irradiance_west_klx: float | None = None
+
 
 @dataclass(frozen=True)
 class DucoNumericSetting:

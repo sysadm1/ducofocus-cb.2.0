@@ -119,6 +119,27 @@ def test_parse_board_status_defaults_diag_status_to_none_when_absent() -> None:
     )
 
 
+def test_parse_board_status_reads_all_four_diag_subsystems_independently() -> None:
+    """Filter, VentCool and SunCtrl are read the same way as Ventilation."""
+    data = {
+        "Diag": {
+            "SubSystems": [
+                {"Component": "Ventilation", "Status": "Ok"},
+                {"Component": "Filter", "Status": "Error"},
+                {"Component": "VentCool", "Status": "Disable"},
+                {"Component": "SunCtrl", "Status": "Ok"},
+            ]
+        }
+    }
+
+    status = parse_board_status(data)
+
+    assert status.ventilation_diag_status == "ok"
+    assert status.filter_diag_status == "error"
+    assert status.ventcool_diag_status == "disable"
+    assert status.suncontrol_diag_status == "ok"
+
+
 def test_parse_board_status_reads_weather_station_fields() -> None:
     """Weather station values are read when a DUCO weather station is attached."""
     data = {

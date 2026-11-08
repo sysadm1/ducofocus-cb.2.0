@@ -26,10 +26,13 @@ class DucoBoardStatus:
     cloud_registration: bool | None = None
     cloud_allow_remote: bool | None = None
 
-    # Overall health of the Ventilation subsystem, as reported by
-    # Diag.SubSystems. "ok", "disable" or "error", lowercased from the
-    # board's response.
+    # Overall health per subsystem, as reported by Diag.SubSystems: "ok",
+    # "disable" or "error", lowercased from the board's response. Not every
+    # box reports every subsystem (VentCool/SunCtrl require those features).
     ventilation_diag_status: str | None = None
+    filter_diag_status: str | None = None
+    ventcool_diag_status: str | None = None
+    suncontrol_diag_status: str | None = None
 
     # Only present with a DUCO weather station accessory attached.
     weather_temp_outside: float | None = None

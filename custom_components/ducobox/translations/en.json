@@ -97,6 +97,14 @@
             "co2": {
                 "name": "CO2"
             },
+            "filter_diag_status": {
+                "name": "Filter Diagnostic Status",
+                "state": {
+                    "ok": "OK",
+                    "disable": "Disabled",
+                    "error": "Error"
+                }
+            },
             "filter_time_remain": {
                 "name": "Filter Time Remaining"
             },
@@ -134,6 +142,14 @@
             "state": {
                 "name": "Ventilation State"
             },
+            "suncontrol_diag_status": {
+                "name": "Sun Control Diagnostic Status",
+                "state": {
+                    "ok": "OK",
+                    "disable": "Disabled",
+                    "error": "Error"
+                }
+            },
             "temp_eha": {
                 "name": "Exhaust Air Temperature"
             },
@@ -151,6 +167,14 @@
             },
             "time_state_remain": {
                 "name": "Ventilation State Remaining Time"
+            },
+            "ventcool_diag_status": {
+                "name": "Ventilative Cooling Diagnostic Status",
+                "state": {
+                    "ok": "OK",
+                    "disable": "Disabled",
+                    "error": "Error"
+                }
             },
             "ventilation_diag_status": {
                 "name": "Ventilation Diagnostic Status",

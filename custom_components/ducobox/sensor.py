@@ -32,9 +32,11 @@ from .const import (
     DUCOBOX_NODE_TYPE_BOX,
     DUCOBOX_NODE_TYPE_BSCO2,
     DUCOBOX_NODE_TYPE_BSRH,
+    DUCOBOX_NODE_TYPE_BSVOC,
     DUCOBOX_NODE_TYPE_UCBAT,
     DUCOBOX_NODE_TYPE_UCCO2,
     DUCOBOX_NODE_TYPE_UCRH,
+    DUCOBOX_NODE_TYPE_UCVOC,
     DUCOBOX_NODE_TYPE_VLV,
     DUCOBOX_NODE_TYPE_VLVCO2,
     DUCOBOX_NODE_TYPE_VLVCO2RH,
@@ -250,6 +252,33 @@ BOARD_STATUS_SENSORS: list[DucoBoxBoardStatusSensorEntityDescription] = [
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda status: status.ventilation_diag_status,
     ),
+    # The Filter/VentCool/SunCtrl subsystems only report a status when the
+    # box has that feature (e.g. a bypass or sun-control setup); unknown
+    # otherwise.
+    DucoBoxBoardStatusSensorEntityDescription(
+        key="filter_diag_status",
+        translation_key="filter_diag_status",
+        device_class=SensorDeviceClass.ENUM,
+        options=["ok", "disable", "error"],
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda status: status.filter_diag_status,
+    ),
+    DucoBoxBoardStatusSensorEntityDescription(
+        key="ventcool_diag_status",
+        translation_key="ventcool_diag_status",
+        device_class=SensorDeviceClass.ENUM,
+        options=["ok", "disable", "error"],
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda status: status.ventcool_diag_status,
+    ),
+    DucoBoxBoardStatusSensorEntityDescription(
+        key="suncontrol_diag_status",
+        translation_key="suncontrol_diag_status",
+        device_class=SensorDeviceClass.ENUM,
+        options=["ok", "disable", "error"],
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda status: status.suncontrol_diag_status,
+    ),
     # The following require a DUCO weather station accessory; None (shown
     # as unknown) without one.
     DucoBoxBoardStatusSensorEntityDescription(
@@ -320,9 +349,11 @@ SENSORS_BY_NODE_TYPE: dict[str, list[DucoBoxSensorEntityDescription]] = {
     ],
     DUCOBOX_NODE_TYPE_BSCO2: [*CO2_SENSORS, *NETWORKTYPE_SENSORS],
     DUCOBOX_NODE_TYPE_BSRH: [*RH_SENSORS, *NETWORKTYPE_SENSORS],
+    DUCOBOX_NODE_TYPE_BSVOC: [*VOC_SENSORS, *NETWORKTYPE_SENSORS],
     DUCOBOX_NODE_TYPE_UCBAT: [*VENTILATION_SENSORS, *NETWORKTYPE_SENSORS],
     DUCOBOX_NODE_TYPE_UCCO2: [*CO2_SENSORS, *NETWORKTYPE_SENSORS],
     DUCOBOX_NODE_TYPE_UCRH: [*RH_SENSORS, *NETWORKTYPE_SENSORS],
+    DUCOBOX_NODE_TYPE_UCVOC: [*VOC_SENSORS, *NETWORKTYPE_SENSORS],
     DUCOBOX_NODE_TYPE_VLV: [*VENTILATION_SENSORS, *NETWORKTYPE_SENSORS],
     DUCOBOX_NODE_TYPE_VLVCO2: [
         *VENTILATION_SENSORS,

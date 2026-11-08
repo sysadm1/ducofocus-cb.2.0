@@ -100,6 +100,9 @@ def parse_board_status(data: Any) -> DucoBoardStatus:
             else None
         ),
         ventilation_diag_status=_find_diag_status(data, "Ventilation"),
+        filter_diag_status=_find_diag_status(data, "Filter"),
+        ventcool_diag_status=_find_diag_status(data, "VentCool"),
+        suncontrol_diag_status=_find_diag_status(data, "SunCtrl"),
         weather_temp_outside=_get(weather, "TempOutside", "Val"),
         weather_wind_speed_dmps=_get(weather, "SpeedWind", "Val"),
         weather_precipitation=(
